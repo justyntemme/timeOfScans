@@ -27,7 +27,7 @@ def extract_time_values(json_response):
 
 
 def getScans(token: str) -> Tuple[int, str]:
-    scanURL = TL_URL + "/api/v1/scans"
+    scanURL = TL_URL + "/api/v1/scans" if TL_URL is not None else exit()
     headers = {
         "accept": "application/json; charset=UTF-8",
         "content-type": "application/json",
@@ -39,7 +39,8 @@ def getScans(token: str) -> Tuple[int, str]:
 
 
 def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
-    authURL = TL_URL + "/api/v1/authenticate"
+    authURL = f"{TL_URL}/api/v1/authenticate" if TL_URL is not None else exit()
+
     headers = {
         "accept": "application/json; charset=UTF-8",
         "content-type": "application/json",
@@ -64,9 +65,13 @@ def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
 def main():
     accessKey = os.environ.get("PC_IDENTITY")
     accessSecret = os.environ.get("PC_SECRET")
-    responseCode, cwpToken = generateCwpToken(accessKey, accessSecret)
+    responseCode, cwpToken = (
+        generateCwpToken(accessKey, accessSecret)
+        if accessKey and accessSecret
+        else (None, None)
+    )
     logging.info(responseCode)
-    responseCode, content = getScans(cwpToken)
+    responseCode, content = getScans(cwpToken) if cwpToken else (exit(9))
     logging.info(responseCode)
     timeValues = extract_time_values(content)
     # jsonContent = parseString(content)
