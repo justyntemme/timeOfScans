@@ -8,7 +8,7 @@ import numpy as np
 from typing import Tuple, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
-from datetime import datetime
+from dateutil.parser import isoparse
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,24 +16,13 @@ TL_URL = os.environ.get("TL_URL")
 
 
 def extract_time_values(json_response):
-    """
-    Extracts 'time' values from a JSON response and adds them to an array.
-
-    Args:
-        json_response (str): JSON response as a string.
-
-    Returns:
-        list: List of 'time' values as datetime objects.
-    """
-    # Parse the JSON response
     data = json.loads(json_response)
-
     time_values = []
-
     for item in data:
         if "time" in item:
-            # Convert the 'time' string to a datetime object and add it to the list
-            time_value = datetime.fromisoformat(item["time"])
+            # Convert the 'time' string to a datetime object using isoparse from dateutil
+            time_value = isoparse(item["time"])
+            # Format the datetime object to a human-readable string (hours and minutes in AM/PM format)
             formatted_time = time_value.strftime("%I:%M %p")
             time_values.append(formatted_time)
 
