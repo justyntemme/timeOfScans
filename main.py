@@ -1,14 +1,11 @@
 import json
-import csv
 import logging
-import io
 import os
 import requests
-import numpy as np
 from typing import Tuple, Optional
-import matplotlib.pyplot as plt
-import seaborn as sns
 from dateutil.parser import isoparse
+import pytz
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,7 +18,7 @@ def extract_time_values(json_response):
     for item in data:
         if "time" in item:
             # Convert the 'time' string to a datetime object using isoparse from dateutil
-            time_value = isoparse(item["time"])
+            time_value = isoparse(item["time"]).astimezone(pytz.utc)
             # Format the datetime object to a human-readable string (hours and minutes in AM/PM format)
             formatted_time = time_value.strftime("%I:%M %p")
             time_values.append(formatted_time)
