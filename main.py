@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 TL_URL = os.environ.get("TL_URL")
 
 
-def extract_time_values(json_response):
+def extractTimeValues(json_response):
     data = json.loads(json_response)
     time_values = []
     for item in data:
@@ -75,7 +75,7 @@ def main():
 
     responseCode, content = getScans(cwpToken) if cwpToken else (exit(9))
     logging.info(responseCode)
-    timeValues = extract_time_values(content)
+    timeValues = extractTimeValues(content)
     # jsonContent = parseString(content)
     print(timeValues)
 
