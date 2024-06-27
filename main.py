@@ -1,11 +1,11 @@
 import json
 import logging
 import os
-import requests
-from typing import Tuple, Optional
+from typing import Tuple
+
 from dateutil.parser import isoparse
 import pytz
-from datetime import datetime
+import requests
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,9 +17,9 @@ def extract_time_values(json_response):
     time_values = []
     for item in data:
         if "time" in item:
-            # Convert the 'time' string to a datetime object using isoparse from dateutil
+            # Convert the 'time' string to a datetime
             time_value = isoparse(item["time"]).astimezone(pytz.utc)
-            # Format the datetime object to a human-readable string (hours and minutes in AM/PM format)
+            # Format the datetime object to (hours and minutes in AM/PM format)
             formatted_time = time_value.strftime("%I:%M %p")
             time_values.append(formatted_time)
 
@@ -70,7 +70,7 @@ def main():
         if accessKey and accessSecret
         else (None, None)
     )
-    logging.info(responseCode)
+
     responseCode, content = getScans(cwpToken) if cwpToken else (exit(9))
     logging.info(responseCode)
     timeValues = extract_time_values(content)
