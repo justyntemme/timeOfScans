@@ -65,6 +65,8 @@ def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
 def main():
     accessKey = os.environ.get("PC_IDENTITY")
     accessSecret = os.environ.get("PC_SECRET")
+    if accessKey is None or accessSecret is None:
+        logging.error("Missing PC_IDENTITY or PC_SECRET")
     responseCode, cwpToken = (
         generateCwpToken(accessKey, accessSecret)
         if accessKey and accessSecret
