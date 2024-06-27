@@ -67,6 +67,8 @@ def main():
     accessSecret = os.environ.get("PC_SECRET")
     if accessKey is None or accessSecret is None:
         logging.error("Missing PC_IDENTITY or PC_SECRET")
+    elif TL_URL is None:
+        logging.error("Missing TL_URL")
     responseCode, cwpToken = (
         generateCwpToken(accessKey, accessSecret)
         if accessKey and accessSecret
@@ -76,7 +78,6 @@ def main():
     responseCode, content = getScans(cwpToken) if cwpToken else (exit(9))
     logging.info(responseCode)
     timeValues = extractTimeValues(content)
-    # jsonContent = parseString(content)
     print(timeValues)
 
 
