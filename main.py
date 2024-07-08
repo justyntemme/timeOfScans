@@ -9,23 +9,42 @@ import requests
 
 # Global Variables
 n = None  # To shorten line lengths
-TL_URL = os.environ.get("TL_URL")
+tlUrl = os.environ.get("TL_URL")
 
 
 def getScans(token: str) -> Tuple[int, str]:
-    scanURL = TL_URL + "/api/v1/scans" if TL_URL is not None else exit(1)
+    """
+    Fetches scans from the API.
+
+    Args:
+        token (str): The authorization token.
+
+    Returns:
+        Tuple[int, str]: A tuple containing the response status code and response text.
+    """
+    scanUrl = tlUrl + "/api/v1/scans" if tlUrl is not None else exit(1)
     headers = {
         "accept": "application/json; charset=UTF-8",
         "content-type": "application/json",
         "Authorization": f"Bearer {token}",
     }
 
-    response = requests.get(scanURL, headers=headers, timeout=60, verify=False)
+    response = requests.get(scanUrl, headers=headers, timeout=60, verify=False)
     return (response.status_code, response.text)
 
 
 def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
-    authURL = f"{TL_URL}/api/v1/authenticate" if TL_URL is not n else exit(1)
+    """
+    Generates a CWP token using the provided access key and secret.
+
+    Args:
+        accessKey (str): The access key.
+        accessSecret (str): The access secret.
+
+    Returns:
+        Tuple[int, str]: A tuple containing the response status code and the token.
+    """
+    authUrl = f"{tlUrl}/api/v1/authenticate" if tlUrl is not n else exit(1)
 
     headers = {
         "accept": "application/json; charset=UTF-8",
@@ -33,7 +52,7 @@ def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
     }
     body = {"username": accessKey, "password": accessSecret}
     response = requests.post(
-        authURL, headers=headers, json=body, timeout=60, verify=False
+        authUrl, headers=headers, json=body, timeout=60, verify=False
     )
 
     if response.status_code == 200:
@@ -42,34 +61,58 @@ def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
         return 200, data["token"]
     else:
         raise ValueError(
-            f"Unable to aquire token with error code: {response.status_code}"
+            f"Unable to acquire token with error code: {response.status_code}"
         )
 
 
-def check_param(param_name: str) -> str:
-    param_value = os.environ.get(param_name)
-    if param_value is None:
-        raise ValueError(f"Missing {param_name}")
-    return param_value
+def checkParam(paramName: str) -> str:
+    """
+    Checks if a parameter is set in the environment variables.
+
+    Args:
+        paramName (str): The name of the parameter.
+
+    Returns:
+        str: The value of the parameter.
+
+    Raises:
+        ValueError: If the parameter is not found.
+    """
+    paramValue = os.environ.get(paramName)
+    if paramValue is None:
+        raise ValueError(f"Missing {paramName}")
+    return paramValue
 
 
-def extractTimeValues(json_response):
-    data = json.loads(json_response)
-    time_values = []
+def extractTimeValues(jsonResponse: str) -> list:
+    """
+    Extracts and formats time values from a JSON response.
+
+    Args:
+        jsonResponse (str): The JSON response as a string.
+
+    Returns:
+        list: A list of formatted time values.
+    """
+    data = json.loads(jsonResponse)
+    timeValues = []
     for item in data:
         if "time" in item:
             # Convert the 'time' string to a datetime
-            time_value = isoparse(item["time"]).astimezone(pytz.utc)
+            timeValue = isoparse(item["time"]).astimezone(pytz.utc)
             # Format the datetime object to (hours and minutes in AM/PM format)
-            formatted_time = time_value.strftime("%I:%M %p")
-            time_values.append(formatted_time)
+            formattedTime = timeValue.strftime("%I:%M %p")
+            timeValues.append(formattedTime)
 
-    return time_values
+    return timeValues
 
 
 def main():
-    P: Tuple[str, str, str] = ("PC_IDENTITY", "PC_SECRET", "TL_URL")
-    accessKey, accessSecret, _ = map(check_param, P)
+    """
+    Main function to execute the script.
+    """
+    params: Tuple[str, str, str] = ("PC_IDENTITY", "PC_SECRET", "TL_URL")
+    accessKey, accessSecret, _ = map(checkParam, params)
     responseCode, cwpToken = (
         generateCwpToken(accessKey, accessSecret)
         if accessKey and accessSecret
