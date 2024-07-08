@@ -11,16 +11,69 @@ import requests
 n = None  # To shorten line lengths
 tlUrl = os.environ.get("TL_URL")
 
+from collections import Counter
 
-def getScans(token: str) -> Tuple[int, str]:
+
+def getAllScansWithTimeCounts(token: str, limit: int) -> dict:
     """
-    Fetches scans from the API.
+    Fetches all scans from the API, extracts time values, and counts the occurrences of each time.
 
     Args:
         token (str): The authorization token.
+        limit (int): Number of items per page.
 
     Returns:
-        Tuple[int, str]: A tuple containing the response status code and response text.
+        dict: A dictionary with times as keys and the number of occurrences as values.
+    """
+    offset = 0
+    timeCounts = Counter()
+    while True:
+        status_code, response_text = getScans(
+            token,
+            offset,
+            limit,
+        )
+        if status_code != 200:
+            print(f"Error fetching scans: {status_code}")
+            break
+
+        # Extract time values using the provided function
+        timeValues = extractTimeValues(response_text)
+        timeCounts.update(timeValues)
+
+        # Check if we have reached the end of the data
+        data = json.loads(response_text)
+        if len(data) < limit:
+            break
+
+        # Update the offset to get the next page of data
+        offset += limit
+
+    return dict(timeCounts)
+
+
+# Example usage:
+# token = "your_api_token_here"
+# timeCounts = getAllScansWithTimeCounts(token, 100, "time", False)
+# print(timeCounts)
+
+
+import requests
+from typing import Tuple
+
+
+def getScans(token: str, offset: int = 0, limit: int = 100) -> Tuple[int, str]:
+    """
+    Fetches scans from the API with pagination.
+
+    Args:
+        token (str): The authorization token.
+        offset (int): The offset from where to start fetching the results.
+        limit (int): The number of results to return.
+
+    Returns:
+        Tuple[int, str]: A tuple containing the
+        response status code and response text.
     """
     scanUrl = tlUrl + "/api/v1/scans" if tlUrl is not None else exit(1)
     headers = {
@@ -29,7 +82,12 @@ def getScans(token: str) -> Tuple[int, str]:
         "Authorization": f"Bearer {token}",
     }
 
-    response = requests.get(scanUrl, headers=headers, timeout=60, verify=False)
+    # Define the query parameters for pagination
+    params = {"offset": offset, "limit": limit}
+
+    response = requests.get(
+        scanUrl, headers=headers, params=params, timeout=60, verify=False
+    )
     return (response.status_code, response.text)
 
 
@@ -42,7 +100,8 @@ def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
         accessSecret (str): The access secret.
 
     Returns:
-        Tuple[int, str]: A tuple containing the response status code and the token.
+        Tuple[int, str]: A tuple containing
+        the response status code and the token.
     """
     authUrl = f"{tlUrl}/api/v1/authenticate" if tlUrl is not n else exit(1)
 
@@ -118,12 +177,13 @@ def main():
         if accessKey and accessSecret
         else (None, None)
     )
-
-    responseCode, content = getScans(cwpToken) if cwpToken else (exit(1))
     print(responseCode)
+    timeCounts = getAllScansWithTimeCounts(cwpToken, 100) if cwpToken else (exit(1))
+    # responseCode, content = getScans(cwpToken) if cwpToken else (exit(1))
+    # print(responseCode)
 
-    timeValues = extractTimeValues(content)
-    print(timeValues)
+    # timeValues = extractTimeValues(content)
+    print(timeCounts)
 
 
 if __name__ == "__main__":
