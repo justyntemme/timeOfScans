@@ -44,17 +44,14 @@ def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
         logging.info("Token acquired")
         return 200, data["token"]
     else:
-        logging.error(
-            "Unable to acquire token with error code: %s", response.status_code
+        raise ValueError(
+            f"Unable to aquire token with error code: {response.status_code}"
         )
-
-    return response.status_code, ""
 
 
 def check_param(param_name: str) -> str:
     param_value = os.environ.get(param_name)
     if param_value is None:
-        logging.error(f"Missing {param_name}")
         raise ValueError(f"Missing {param_name}")
     return param_value
 
@@ -84,6 +81,7 @@ def main():
 
     responseCode, content = getScans(cwpToken) if cwpToken else (exit(1))
     logging.info(responseCode)
+
     timeValues = extractTimeValues(content)
     logging.info(timeValues)
 
