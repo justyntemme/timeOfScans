@@ -1,13 +1,10 @@
 import json
-import logging
 import os
 from typing import Tuple
 
 from dateutil.parser import isoparse
 import pytz
 import requests
-
-logging.basicConfig(level=logging.INFO)
 
 
 # Global Variables
@@ -41,7 +38,7 @@ def generateCwpToken(accessKey: str, accessSecret: str) -> Tuple[int, str]:
 
     if response.status_code == 200:
         data = json.loads(response.text)
-        logging.info("Token acquired")
+        print("Token acquired")
         return 200, data["token"]
     else:
         raise ValueError(
@@ -80,10 +77,10 @@ def main():
     )
 
     responseCode, content = getScans(cwpToken) if cwpToken else (exit(1))
-    logging.info(responseCode)
+    print(responseCode)
 
     timeValues = extractTimeValues(content)
-    logging.info(timeValues)
+    print(timeValues)
 
 
 if __name__ == "__main__":
