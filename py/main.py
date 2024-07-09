@@ -44,6 +44,7 @@ def getAllScansWithTimeCounts(token: str, limit: int) -> dict:
         # Check if we have reached the end of the data
         data = json.loads(response_text)
         if len(data) < limit:
+            print(len(data))
             break
 
         # Update the offset to get the next page of data

@@ -14,18 +14,13 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
+  "github.com/justyntemme/timeOfScans/params"
 )
 
 // Global Variables
 var tlUrl = os.Getenv("TL_URL")
 
-func checkEnvVar(paramName string) (string, error) {
-	paramValue := os.Getenv(paramName)
-	if paramValue == "" {
-		return "", fmt.Errorf("missing %s", paramName)
-	}
-	return paramValue, nil
-}
+
 
 func generateCwpToken(accessKey, accessSecret string) (string, error) {
 	authUrl := fmt.Sprintf("%s/api/v1/authenticate", tlUrl)
@@ -177,26 +172,15 @@ func getAllScansWithTimeCounts(token string, limit int, result chan<- map[string
 }
 
 func main() {
-	params := []string{"PC_IDENTITY", "PC_SECRET", "TL_URL"}
-	accessKey, err := checkEnvVar(params[0])
-	if err != nil {
+	paramKeys := []string{"PC_IDENTITY", "PC_SECRET", "TL_URL"}
+  paramValues, err := params.GetEnvVars(paramKeys)	
+  if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	accessSecret, err := checkEnvVar(params[1])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+		cwpToken, err := generateCwpToken(paramValues["PC_IDENTITY"], paramValues["PC_SECRET"])
 
-	_, err = checkEnvVar(params[2])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	cwpToken, err := generateCwpToken(accessKey, accessSecret)
 	if err != nil {
 		fmt.Println(err)
 		return
