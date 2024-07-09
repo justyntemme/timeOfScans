@@ -34,6 +34,7 @@ func main() {
 		wg.Wait()
 		close(result)
 	}()
+
   // Iterate over time values and create a map of each value and the count of scans for that time
 	timeCounts := make(map[string]int)
 	for counts := range result {
