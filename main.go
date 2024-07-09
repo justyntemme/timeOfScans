@@ -18,8 +18,7 @@ func main() {
 		return
 	}
 
-		cwpToken, err := net.GenerateCwpToken(paramValues["PC_IDENTITY"], paramValues["PC_SECRET"], paramValues["TL_URL"])
-
+	cwpToken, err := net.GenerateCwpToken(paramValues["PC_IDENTITY"], paramValues["PC_SECRET"], paramValues["TL_URL"])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -35,7 +34,7 @@ func main() {
 		wg.Wait()
 		close(result)
 	}()
-
+  // Iterate over time values and create a map of each value and the count of scans for that time
 	timeCounts := make(map[string]int)
 	for counts := range result {
 		for key, count := range counts {
