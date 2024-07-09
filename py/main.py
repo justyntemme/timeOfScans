@@ -76,7 +76,7 @@ def getScans(token: str, offset: int = 0, limit: int = 100) -> Tuple[int, str]:
         Tuple[int, str]: A tuple containing the
         response status code and response text.
     """
-    scanUrl = tlUrl + "/api/v1/scans" if tlUrl is not None else exit(1)
+    scanUrl = tlUrl + "/api/v1/images" if tlUrl is not None else exit(1)
     headers = {
         "accept": "application/json; charset=UTF-8",
         "content-type": "application/json",
