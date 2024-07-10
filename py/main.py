@@ -1,3 +1,4 @@
+from collections import Counter
 import json
 import os
 from typing import Tuple
@@ -10,8 +11,6 @@ import requests
 # Global Variables
 n = None  # To shorten line lengths
 tlUrl = os.environ.get("TL_URL")
-
-from collections import Counter
 
 
 def getAllScansWithTimeCounts(token: str, limit: int) -> dict:
@@ -51,16 +50,6 @@ def getAllScansWithTimeCounts(token: str, limit: int) -> dict:
         offset += limit
 
     return dict(timeCounts)
-
-
-# Example usage:
-# token = "your_api_token_here"
-# timeCounts = getAllScansWithTimeCounts(token, 100, "time", False)
-# print(timeCounts)
-
-
-import requests
-from typing import Tuple
 
 
 def getScans(token: str, offset: int = 0, limit: int = 100) -> Tuple[int, str]:
