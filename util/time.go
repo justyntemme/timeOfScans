@@ -25,8 +25,7 @@ func ExtractTimeValues(jsonResponse string) ([]string, error) {
 
 	timeValues := make([]string, 0)
 	for _, item := range data {
-		if entityInfo, ok := item["entityInfo"].(map[string]interface{}); ok {
-			if scanTimeStr, ok := entityInfo["scanTime"].(string); ok {
+			if scanTimeStr, ok := item["scanTime"].(string); ok {
 				timeValue, err := dateparse.ParseAny(scanTimeStr)
 				if err != nil {
 					return nil, err
@@ -34,7 +33,6 @@ func ExtractTimeValues(jsonResponse string) ([]string, error) {
 				formattedTime := timeValue.UTC().Format("03:04 PM")
 				timeValues = append(timeValues, formattedTime)
 			}
-		}
 	}
 
 	return timeValues, nil
