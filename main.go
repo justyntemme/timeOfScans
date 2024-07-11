@@ -28,7 +28,7 @@ func main() {
 	result := make(chan map[string]int)
 
 	wg.Add(1)
-	go net.GetAllScansWithTimeCounts(cwpToken, 5, result, &wg, paramValues["TL_URL"])
+	go net.GetAllScansWithTimeCounts(cwpToken, 250, result, &wg, paramValues["TL_URL"])
 
 	go func() {
 		wg.Wait()
