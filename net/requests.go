@@ -72,7 +72,7 @@ func GetAllScansWithTimeCounts(token string, limit int, result chan<- map[string
 }
 
 func getScans(token string, offset, limit int, tlUrl string) (int, string, error) {
-	scanUrl := fmt.Sprintf("%s/api/v1/scans", tlUrl)
+	scanUrl := fmt.Sprintf("%s/api/v1/images", tlUrl)
 	req, err := http.NewRequest("GET", scanUrl, nil)
 	if err != nil {
 		return 0, "", err
