@@ -66,6 +66,7 @@ func GetAllScansWithTimeCounts(token string, limit int, result chan<- map[string
 		}
 
 		offset += limit
+    fmt.Printf("Offset: %d \n" , offset)
 	}
 
 	result <- timeCounts
