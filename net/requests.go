@@ -3,24 +3,42 @@ package net
 import (
 	"encoding/json"
 	"errors"
-  "bytes"
-  "strconv"
+	"bytes"
+	"strconv"
 	"fmt"
-  "io"
+	"io"
 	"net/http"
-  "sync"
+	"sync"
 	"time"
 
-  "github.com/justyntemme/timeOfScans/util"
-
+	"github.com/justyntemme/timeOfScans/util"
 )
 
 func GetAllScansWithTimeCounts(token string, limit int, result chan<- map[string]int, wg *sync.WaitGroup, tlUrl string) {
 	defer wg.Done()
 	offset := 0
 	timeCounts := make(map[string]int)
+	rateLimiter := make(chan time.Time, 30)
+
+	// Fill channel with initial rate limit tokens
+	for i := 0; i < 30; i++ {
+		rateLimiter <- time.Now()
+	}
+
+	// Token refiller
+	go func() {
+		ticker := time.NewTicker(30 * time.Second)
+		defer ticker.Stop()
+		for t := range ticker.C {
+			for i := 0; i < 30; i++ {
+				rateLimiter <- t
+			}
+		}
+	}()
 
 	for {
+		<-rateLimiter
+
 		statusCode, responseText, err := getScans(token, offset, limit, tlUrl)
 		if err != nil || statusCode != http.StatusOK {
 			fmt.Printf("Error fetching scans: %v, Status Code: %d\n", err, statusCode)
@@ -52,7 +70,6 @@ func GetAllScansWithTimeCounts(token string, limit int, result chan<- map[string
 
 	result <- timeCounts
 }
-
 
 func getScans(token string, offset, limit int, tlUrl string) (int, string, error) {
 	scanUrl := fmt.Sprintf("%s/api/v1/scans", tlUrl)
@@ -129,5 +146,3 @@ func GenerateCwpToken(accessKey, accessSecret string, tlUrl string) (string, err
 
 	return token, nil
 }
-
-// Other functions remain the same...
